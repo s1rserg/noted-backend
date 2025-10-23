@@ -1,5 +1,5 @@
 import { Brackets, type ObjectLiteral, SelectQueryBuilder } from 'typeorm';
-import type { PaginationArgs, SearchArgs, SortingArgs } from './types.js';
+import type { FilterArgs, PaginationArgs, SearchArgs, SortingArgs } from './types.js';
 
 /**
  * Applies pagination (skip/take) to a QueryBuilder.
@@ -25,11 +25,18 @@ export function applySorting<EntityLike extends ObjectLiteral>({
   order,
   sortBy,
   queryBuilder,
+  customSorts,
 }: SortingArgs<EntityLike>): SelectQueryBuilder<EntityLike> {
   if (!sortBy || !order) return queryBuilder;
   const alias = queryBuilder.alias;
 
-  return queryBuilder.addOrderBy(`${alias}.${sortBy.toString()}`, order);
+  const sortKey = sortBy.toString();
+  if (customSorts && customSorts[sortKey]) {
+    const customExpression = customSorts[sortKey];
+    return queryBuilder.orderBy(customExpression, order);
+  }
+
+  return queryBuilder.orderBy(`${alias}.${sortBy.toString()}`, order);
 }
 
 /**
@@ -57,4 +64,26 @@ export function applySearch<EntityLike extends ObjectLiteral>({
       });
     }),
   );
+}
+
+/**
+ * Applies simple equality filters.
+ * Skips any filters with `undefined` or `null` values.
+ */
+export function applyFilters<EntityLike extends ObjectLiteral>({
+  filters,
+  queryBuilder,
+}: FilterArgs<EntityLike>): SelectQueryBuilder<EntityLike> {
+  if (!filters) return queryBuilder;
+
+  const alias = queryBuilder.alias;
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      const paramName = `filter_${key}`;
+      queryBuilder.andWhere(`${alias}.${key} = :${paramName}`, { [paramName]: value });
+    }
+  });
+
+  return queryBuilder;
 }

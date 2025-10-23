@@ -13,9 +13,14 @@ export interface PaginationArgs<EntityLike extends ObjectLiteral> extends BaseAr
 export interface SortingArgs<EntityLike extends ObjectLiteral> extends BaseArgs<EntityLike> {
   sortBy?: keyof EntityLike;
   order?: SortOrder;
+  customSorts?: Record<string, string>;
 }
 
 export interface SearchArgs<EntityLike extends ObjectLiteral> extends BaseArgs<EntityLike> {
   q?: string;
   searchBy?: (keyof EntityLike)[];
+}
+
+export interface FilterArgs<EntityLike extends ObjectLiteral> extends BaseArgs<EntityLike> {
+  filters?: Partial<Record<keyof EntityLike, string>>;
 }
