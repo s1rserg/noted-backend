@@ -76,13 +76,9 @@ export function applyFilters<EntityLike extends ObjectLiteral>({
 }: FilterArgs<EntityLike>): SelectQueryBuilder<EntityLike> {
   if (!filters) return queryBuilder;
 
-  const alias = queryBuilder.alias;
-
   Object.entries(filters).forEach(([key, value]) => {
-    if (value !== null && value !== undefined) {
-      const paramName = `filter_${key}`;
-      queryBuilder.andWhere(`${alias}.${key} = :${paramName}`, { [paramName]: value });
-    }
+    if (value === null || value === undefined) return;
+    queryBuilder.andWhere({ [key]: value });
   });
 
   return queryBuilder;

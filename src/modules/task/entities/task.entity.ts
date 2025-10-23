@@ -23,7 +23,7 @@ export class TaskEntity {
   description: string;
 
   @Column({ type: 'date', nullable: true })
-  deadline?: string;
+  deadline: string | null;
 
   @Column({
     type: 'enum',
@@ -39,8 +39,8 @@ export class TaskEntity {
   })
   priority: TaskPriority;
 
-  @Column({ type: 'simple-array', nullable: true })
-  tags?: string[];
+  @Column({ type: 'simple-array', default: '' })
+  tags: string[] = [];
 
   @ManyToOne(() => UserEntity, (user) => user.id, {
     onDelete: 'CASCADE',
