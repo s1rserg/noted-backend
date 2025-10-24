@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '@modules/user';
+import { TaskPriority } from '../enums/task-priority.enum.js';
 import { TaskStatus } from '../enums/task-status.enum.js';
 
 @Entity('tasks', { orderBy: { createdAt: 'DESC' } })
@@ -21,12 +22,25 @@ export class TaskEntity {
   @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'date', nullable: true })
+  deadline: string | null;
+
   @Column({
     type: 'enum',
     enum: TaskStatus,
     default: TaskStatus.PENDING,
   })
   status: TaskStatus;
+
+  @Column({
+    type: 'enum',
+    enum: TaskPriority,
+    default: TaskPriority.MEDIUM,
+  })
+  priority: TaskPriority;
+
+  @Column({ type: 'simple-array', default: '' })
+  tags: string[] = [];
 
   @ManyToOne(() => UserEntity, (user) => user.id, {
     onDelete: 'CASCADE',
