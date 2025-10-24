@@ -6,6 +6,8 @@ import { NotFoundException } from '@exceptions';
 import { runModulesComposer } from './composers/modules.composer.js';
 import { runRoutersComposer } from './composers/routers.composer.js';
 
+import passport from 'passport';
+
 const app = express();
 
 app.use(
@@ -18,6 +20,8 @@ app.use(
 app.use(express.json());
 
 app.use(cookieParser());
+
+app.use(passport.initialize());
 
 const bootstrap = async () => {
   const { moduleRouters, loggerService, accessTokenGuard } = await runModulesComposer();
