@@ -20,4 +20,7 @@ export const EnvFileSchema = z.object({
   JWT_SALT_ROUNDS: z.coerce.number('JWT_SALT_ROUNDS must be a number in env file'),
   ACCESS_TOKEN_TTL: z.coerce.number('ACCESS_TOKEN_TL must be a number in env file'),
   REFRESH_TOKEN_TTL: z.coerce.number('REFRESH_TOKEN_TL must be a number in env file'),
+
+  // GOOGLE_AUTH
+  GOOGLE_CLIENT_ID: z.string('GOOGLE_CLIENT_ID must be a string in env file'),
 });

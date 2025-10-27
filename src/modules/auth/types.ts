@@ -5,8 +5,11 @@ import type { UserService } from '@modules/user';
 import type { Nullable } from '@types';
 import type { AuthProvider } from './enums/auth-provider.enum.js';
 import type { ActiveUserSchema } from './schemas/active-user.schema.js';
+import type { SignInGoogleSchema } from './schemas/sign-in-google.schema.js';
 import type { SignInLocalSchema } from './schemas/sign-in-local.schema.js';
 import type { SignUpLocalSchema } from './schemas/sign-up-local.schema.js';
+
+import type { TokenPayload } from 'google-auth-library';
 
 export interface CreateAuthDto {
   email: string;
@@ -21,6 +24,8 @@ export interface AuthRegisterPayload {
   provider: AuthProvider;
   email: string;
   password?: string;
+  name?: string;
+  surname?: string;
 }
 
 export interface TokensPair {
@@ -28,7 +33,12 @@ export interface TokensPair {
   refreshToken: string;
 }
 
+export interface TokenPayloadWithEmail extends Omit<TokenPayload, 'email'> {
+  email: string;
+}
+
 // ! DTO-s
+export type SignInGoogleDto = ZodInfer<typeof SignInGoogleSchema>;
 export type SignInLocalDto = ZodInfer<typeof SignInLocalSchema>;
 export type SignUpLocalDto = ZodInfer<typeof SignUpLocalSchema>;
 

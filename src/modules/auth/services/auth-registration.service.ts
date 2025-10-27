@@ -14,7 +14,13 @@ export class AuthRegistrationService {
     private readonly authRepository: AuthRepository,
   ) {}
 
-  async registerUser({ provider, email, password }: AuthRegisterPayload): Promise<AuthEntity> {
+  async registerUser({
+    provider,
+    email,
+    password,
+    name,
+    surname,
+  }: AuthRegisterPayload): Promise<AuthEntity> {
     /* TRANSACTION */
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -33,7 +39,7 @@ export class AuthRegistrationService {
       }
 
       if (!user) {
-        user = await this.userService.create({ email }, manager);
+        user = await this.userService.create({ email, name, surname }, manager);
       }
 
       // create an auth record

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { SignInGoogleSchema } from './schemas/sign-in-google.schema.js';
 import { SignInLocalSchema } from './schemas/sign-in-local.schema.js';
 import { SignUpLocalSchema } from './schemas/sign-up-local.schema.js';
 import { RefreshTokenGuard } from './guards/refresh-token.guard.js';
@@ -18,6 +19,12 @@ export const createAuthRouter = (
   authRouter.get('/sign-out', [refreshTokenGuard.canActivate], authController.signOut);
 
   authRouter.get('/refresh', [refreshTokenGuard.canActivate], authController.refresh);
+
+  authRouter.post(
+    '/google-auth',
+    [validateBodyMiddleware(SignInGoogleSchema)],
+    authController.googleSignIn,
+  );
 
   return authRouter;
 };
