@@ -23,4 +23,9 @@ export const EnvFileSchema = z.object({
 
   // GOOGLE_AUTH
   GOOGLE_CLIENT_ID: z.string('GOOGLE_CLIENT_ID must be a string in env file'),
+
+  // CLOUDINARY
+  CLOUDINARY_CLOUD_NAME: z.string('CLOUDINARY_CLOUD_NAME must be a string in env file'),
+  CLOUDINARY_API_KEY: z.string('CLOUDINARY_API_KEY must be a string in env file'),
+  CLOUDINARY_API_SECRET: z.string('CLOUDINARY_API_SECRET must be a string in env file'),
 });

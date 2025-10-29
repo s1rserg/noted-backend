@@ -8,3 +8,8 @@ export enum SortOrder {
 export interface AppGuard {
   canActivate: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
+
+export type FileUpload = {
+  buffer: Buffer;
+  originalname: string;
+};

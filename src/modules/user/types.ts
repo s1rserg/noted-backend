@@ -1,5 +1,6 @@
 import type { DataSource } from 'typeorm';
 import type { infer as ZodInfer } from 'zod';
+import type { MediaDto, UserAvatarService } from '@modules/media/index.js';
 import type { Nullable } from '@types';
 import type { CreateUserSchema } from './schemas/create-user.schema.js';
 import type { UpdateUserSchema } from './schemas/update-user.schema.js';
@@ -18,6 +19,11 @@ export interface UserResponse {
   updatedAt: Date;
 }
 
+export interface UserDto extends UserResponse {
+  avatar: Nullable<MediaDto>;
+}
+
 export interface UserModuleComposerArgs {
   dataSource: DataSource;
+  userAvatarService: UserAvatarService;
 }

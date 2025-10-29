@@ -2,6 +2,7 @@ import { ConfigService } from '@infrastructure/config-service';
 import { DatabaseService } from '@infrastructure/database';
 import { LoggerService } from '@infrastructure/logger';
 import { runAuthModuleComposer } from '@modules/auth';
+import { runMediaModuleComposer } from '@modules/media';
 import { runTaskModuleComposer } from '@modules/task';
 import { runUserModuleComposer } from '@modules/user';
 import type { AppModuleRouters, ModulesComposerReturn } from './types.js';
@@ -19,7 +20,10 @@ export const runModulesComposer = async (): Promise<ModulesComposerReturn> => {
   loggerService.init(DatabaseService.name);
 
   // Feature modules and services
-  const user = runUserModuleComposer({ dataSource });
+  const media = runMediaModuleComposer({ dataSource, configService, loggerService });
+  loggerService.init('MediaModule');
+
+  const user = runUserModuleComposer({ dataSource, userAvatarService: media.userAvatarService });
   loggerService.init('UserModule');
 
   const auth = runAuthModuleComposer({ dataSource, configService, userService: user.userService });
