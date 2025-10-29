@@ -45,9 +45,8 @@
       "@schemas/*": ["shared/schemas/*"],
       "@utils/*": ["shared/utils/*", "shared/utils/*/index.ts"],
       "@exceptions": ["shared/exceptions.ts"],
-      "@validation-middlewares/*": [
-        "shared/middlewares/validation-middlewares/*"
-      ],
+      "@upload-middlewares/*": ["shared/middlewares/upload-middlewares/*"],
+      "@validation-middlewares/*": ["shared/middlewares/validation-middlewares/*"],
       "@modules/*": ["modules/*", "modules/*/index.ts"],
       "@infrastructure/*": ["infrastructure/*", "infrastructure/*/index.ts"],
       "@app/*": ["app/*", "app/*/index.ts"],

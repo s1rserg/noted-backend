@@ -1,19 +1,28 @@
 import type { EntityManager } from 'typeorm';
-import type { MessageResponse, Nullable } from '@types';
-import type { CreateUserDto, UpdateUserDto, UserResponse } from '../types.js';
+import type { MediaDto, UserAvatarService } from '@modules/media/index.js';
+import type { FileUpload, MessageResponse, Nullable } from '@types';
+import type { CreateUserDto, UpdateUserDto, UserDto, UserResponse } from '../types.js';
 import type { UserRepository } from '../repositories/user.repository.js';
 import { ConflictException, NotFoundException } from '@exceptions';
 
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly userAvatarService: UserAvatarService,
+  ) {}
 
-  async findOne(id: number): Promise<UserResponse> {
+  async findOne(id: number): Promise<UserDto> {
     const user = await this.userRepository.findOne(id);
     if (!user) {
       throw new NotFoundException(`User not found`);
     }
 
-    return user;
+    const avatar = await this.userAvatarService.findMainAvatar(id);
+
+    return {
+      ...user,
+      avatar,
+    };
   }
 
   async findOneByEmailOrNull(
@@ -37,13 +46,18 @@ export class UserService {
     return this.userRepository.create(createUserDto, manager);
   }
 
-  async update(userId: number, updateUserDto: UpdateUserDto): Promise<UserResponse> {
+  async update(userId: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
     const updatedUser = await this.userRepository.update(userId, updateUserDto);
     if (!updatedUser) {
       throw new NotFoundException(`User not found`);
     }
 
-    return updatedUser;
+    const avatar = await this.userAvatarService.findMainAvatar(userId);
+
+    return {
+      ...updatedUser,
+      avatar,
+    };
   }
 
   async delete(userId: number): Promise<MessageResponse> {
@@ -54,5 +68,21 @@ export class UserService {
     }
 
     return { message: 'User deleted successfully' };
+  }
+
+  async uploadAvatar(userId: number, file: FileUpload): Promise<MediaDto> {
+    return this.userAvatarService.createAvatar(userId, file);
+  }
+
+  async getAllUserAvatars(userId: number): Promise<MediaDto[]> {
+    return this.userAvatarService.getAllAvatars(userId);
+  }
+
+  async setUserMainAvatar(userId: number, mediaId: number): Promise<MediaDto> {
+    return this.userAvatarService.setMainAvatar(userId, mediaId);
+  }
+
+  async deleteUserAvatar(userId: number, mediaId: number): Promise<MessageResponse> {
+    return this.userAvatarService.deleteAvatar(userId, mediaId);
   }
 }
