@@ -94,16 +94,6 @@ export class UserAvatarService {
   }
 
   async deleteAvatar(userId: number, mediaIdToDelete: number): Promise<MessageResponse> {
-    const mediaToDelete = await this.performDbDeletion(userId, mediaIdToDelete);
-    await this.cloudinaryService.delete(mediaToDelete.publicId, mediaToDelete.resourceType);
-
-    return { message: 'Avatar deleted successfully' };
-  }
-
-  private async performDbDeletion(
-    userId: number,
-    mediaIdToDelete: number,
-  ): Promise<{ publicId: string; resourceType: string }> {
     return this.dataSource.transaction(async (manager) => {
       const targetLink = await this.userMediaRepository.findOneWithMediaByUserMediaAndRole(
         userId,
@@ -133,16 +123,15 @@ export class UserAvatarService {
         }
       }
 
+      await this.cloudinaryService.delete(targetLink.media.publicId, targetLink.media.resourceType);
+
       await this.mediaRepository.delete(mediaIdToDelete, manager);
 
       if (newMainLink) {
         await this.userMediaRepository.update(newMainLink.id, { isMain: true }, manager);
       }
 
-      return {
-        publicId: targetLink.media.publicId,
-        resourceType: targetLink.media.resourceType,
-      };
+      return { message: 'Avatar deleted successfully' };
     });
   }
 
