@@ -21,7 +21,7 @@ export const runModulesComposer = async (): Promise<ModulesComposerReturn> => {
 
   // Feature modules and services
   const media = runMediaModuleComposer({ dataSource, configService, loggerService });
-  loggerService.init('UserModule');
+  loggerService.init('MediaModule');
 
   const user = runUserModuleComposer({ dataSource, userAvatarService: media.userAvatarService });
   loggerService.init('UserModule');

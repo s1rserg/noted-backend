@@ -1,5 +1,5 @@
-import type { ConfigService } from '@infrastructure/config-service/index.js';
-import type { LoggerService } from '@infrastructure/logger/index.js';
+import type { ConfigService } from '@infrastructure/config-service';
+import type { LoggerService } from '@infrastructure/logger';
 import type { FileUpload } from '@types';
 import type {
   CloudinaryDestroyData,

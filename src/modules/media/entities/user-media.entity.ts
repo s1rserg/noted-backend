@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserEntity } from '@modules/user/index.js';
+import { UserEntity } from '@modules/user';
 import { UserMediaRole } from '../types.js';
 import { MediaEntity } from './media.entity.js';
 
