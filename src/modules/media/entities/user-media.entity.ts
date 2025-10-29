@@ -14,7 +14,7 @@ import { MediaEntity } from './media.entity.js';
 
 @Entity('user_media')
 @Index(
-  'one_main_avatar_per_user',
+  'idx_one_main_avatar_per_user',
   (userMedia: UserMediaEntity) => [userMedia.userId, userMedia.role],
   {
     unique: true,
