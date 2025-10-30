@@ -1,4 +1,4 @@
-import type { DataSource, EntityManager, Repository } from 'typeorm';
+import type { DataSource, DeleteResult, EntityManager, Repository } from 'typeorm';
 import type { Nullable } from '@types';
 import type { CreateUserMediaDto, UpdateUserMediaDto, UserMediaRole } from '../types.js';
 import { UserMediaEntity } from '../entities/user-media.entity.js';
@@ -79,6 +79,11 @@ export class UserMediaRepository {
     const entity = await repository.preload({ id, ...userMedia });
     if (!entity) return null;
     return repository.save(entity);
+  }
+
+  async delete(id: number, manager?: EntityManager): Promise<DeleteResult> {
+    const repository = this.getRepository(manager);
+    return repository.delete(id);
   }
 
   private getRepository(manager?: EntityManager) {
