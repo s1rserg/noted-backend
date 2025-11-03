@@ -81,6 +81,7 @@ export class CloudinaryService {
       }
     } catch (error) {
       this.loggerService.error(error);
+      throw new InternalServerErrorException((error as InternalServerErrorException).message);
     }
   }
 }

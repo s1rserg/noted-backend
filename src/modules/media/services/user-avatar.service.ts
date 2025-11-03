@@ -123,9 +123,7 @@ export class UserAvatarService {
         }
       }
 
-      await this.cloudinaryService.delete(targetLink.media.publicId, targetLink.media.resourceType);
-
-      await this.mediaRepository.delete(mediaIdToDelete, manager);
+      await this.userMediaRepository.delete(targetLink.id, manager);
 
       if (newMainLink) {
         await this.userMediaRepository.update(newMainLink.id, { isMain: true }, manager);
