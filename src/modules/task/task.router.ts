@@ -19,7 +19,7 @@ export const createTaskRouter = (taskController: TaskController) => {
   taskRouter.get(
     '/by-position',
     [validateQueryMiddleware(ByPositionFilteringSchema)],
-    taskController.findAll,
+    taskController.findAllByPosition,
   );
 
   taskRouter.get('/:id', [validateParamsMiddleware(ParamsIdSchema)], taskController.findOne);
