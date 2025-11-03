@@ -15,7 +15,6 @@ import type {
 import type { TaskStatus } from '../enums/task-status.enum.js';
 import { applyFilters, applyPagination, applySearch, applySorting } from '@utils/typeorm-query';
 import { TaskEntity } from '../entities/task.entity.js';
-import { TaskNotFoundException } from '../exceptions/task-not-found.exception.js';
 
 import { getSortExpressions } from '../utils/getSortExpressions.js';
 
@@ -100,38 +99,6 @@ export class TaskRepository {
 
     const mergedTask = this.taskRepository.merge(task, updateTaskDto);
     return this.taskRepository.save(mergedTask);
-  }
-
-  async reorder(id: number, nextTaskId: Nullable<number>, authorId: number, status: TaskStatus) {
-    return this.dataSource.transaction(async (manager) => {
-      const taskRepo = manager.getRepository(TaskEntity);
-
-      const movingTask = await taskRepo.findOneBy({ id, authorId });
-      if (!movingTask) throw new TaskNotFoundException();
-
-      if (movingTask.status !== status) {
-        movingTask.status = status;
-      }
-
-      const nextTask = nextTaskId ? await taskRepo.findOneBy({ id: nextTaskId, authorId }) : null;
-
-      if (!nextTask) {
-        movingTask.position = await this.getNextPosition(status, authorId, manager);
-      } else {
-        await taskRepo
-          .createQueryBuilder()
-          .update(TaskEntity)
-          .set({ position: () => '"position" + 1' })
-          .where({ status: movingTask.status, authorId })
-          .andWhere({ position: MoreThanOrEqual(nextTask.position) })
-          .execute();
-
-        movingTask.position = nextTask.position;
-      }
-
-      await taskRepo.save(movingTask);
-      return movingTask;
-    });
   }
 
   async save(task: TaskEntity, manager?: EntityManager): Promise<TaskEntity> {
