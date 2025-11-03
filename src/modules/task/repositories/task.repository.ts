@@ -1,4 +1,10 @@
-import { type DataSource, type DeleteResult, MoreThanOrEqual, type Repository } from 'typeorm';
+import {
+  type DataSource,
+  type DeleteResult,
+  EntityManager,
+  MoreThanOrEqual,
+  type Repository,
+} from 'typeorm';
 import { type Nullable, SortOrder } from '@types';
 import type {
   CreateTaskDto,
@@ -58,16 +64,21 @@ export class TaskRepository {
     return queryBuilder.andWhere({ authorId }).getMany();
   }
 
-  async findOne(id: number, authorId?: number): Promise<Nullable<TaskEntity>> {
-    return this.taskRepository.findOneBy({ id, authorId });
+  async findOne(
+    id: number,
+    authorId?: number,
+    manager?: EntityManager,
+  ): Promise<Nullable<TaskEntity>> {
+    const repo = manager ? manager.getRepository(TaskEntity) : this.taskRepository;
+    return repo.findOneBy({ id, authorId });
   }
 
   async create(createTaskDto: CreateTaskDto, authorId: number): Promise<TaskEntity> {
     return this.dataSource.transaction(async (manager) => {
-      const repo = manager.getRepository(TaskEntity);
+      const repo = manager ? manager.getRepository(TaskEntity) : this.taskRepository;
       const status = createTaskDto.status;
 
-      const position = await this.getNextPosition(status, authorId, repo);
+      const position = await this.getNextPosition(status, authorId, manager);
 
       const task = repo.create({
         ...createTaskDto,
@@ -105,7 +116,7 @@ export class TaskRepository {
       const nextTask = nextTaskId ? await taskRepo.findOneBy({ id: nextTaskId, authorId }) : null;
 
       if (!nextTask) {
-        movingTask.position = await this.getNextPosition(status, authorId, taskRepo);
+        movingTask.position = await this.getNextPosition(status, authorId, manager);
       } else {
         await taskRepo
           .createQueryBuilder()
@@ -123,11 +134,33 @@ export class TaskRepository {
     });
   }
 
-  private async getNextPosition(
+  async save(task: TaskEntity, manager?: EntityManager): Promise<TaskEntity> {
+    const repo = manager ? manager.getRepository(TaskEntity) : this.taskRepository;
+    return repo.save(task);
+  }
+
+  async incrementPositions(
     status: TaskStatus,
     authorId: number,
-    repo: Repository<TaskEntity>,
+    fromPosition: number,
+    manager: EntityManager,
+  ): Promise<void> {
+    await manager
+      .getRepository(TaskEntity)
+      .createQueryBuilder()
+      .update(TaskEntity)
+      .set({ position: () => '"position" + 1' })
+      .where({ status, authorId })
+      .andWhere({ position: MoreThanOrEqual(fromPosition) })
+      .execute();
+  }
+
+  async getNextPosition(
+    status: TaskStatus,
+    authorId: number,
+    manager: EntityManager,
   ): Promise<number> {
+    const repo = manager.getRepository(TaskEntity);
     const { max } = (await repo
       .createQueryBuilder()
       .select('MAX(position)', 'max')
