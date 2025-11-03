@@ -37,8 +37,8 @@ export const runMediaModuleComposer = ({
   });
 
   const redisConnection = {
-    host: configService.env.MEDIA_GC_REDIS_HOST,
-    port: configService.env.MEDIA_GC_REDIS_PORT,
+    host: configService.env.REDIS_HOST,
+    port: configService.env.REDIS_PORT,
   };
 
   const mediaGcQueueManager = new MediaGcQueueManager(

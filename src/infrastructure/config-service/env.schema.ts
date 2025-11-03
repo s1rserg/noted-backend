@@ -32,6 +32,8 @@ export const EnvFileSchema = z.object({
   // GC
   MEDIA_GC_SCHEDULE: z.string('MEDIA_GC_SCHEDULE must be a string in env file'),
   MEDIA_GC_RETRY_SCHEDULE: z.string('MEDIA_GC_RETRY_SCHEDULE must be a string in env file'),
-  MEDIA_GC_REDIS_HOST: z.string('MEDIA_GC_REDIS_HOST must be a string in env file'),
-  MEDIA_GC_REDIS_PORT: z.coerce.number('MEDIA_GC_REDIS_PORT must be a number in env file'),
+
+  // REDIS
+  REDIS_HOST: z.string('REDIS_HOST must be a string in env file'),
+  REDIS_PORT: z.coerce.number('REDIS_PORT must be a number in env file'),
 });
