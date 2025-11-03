@@ -1,4 +1,4 @@
-import { FilteringSchema } from '@schemas/filtering-query.schema.js';
+import { FilteringSchema } from './filtering-query.schema.js';
 import { PaginationSchema } from '@schemas/pagination.schema.js';
 import { createSearchQuerySchema } from '@schemas/search-query.schema.js';
 import { createSortingQuerySchema } from '@schemas/sorting-query.schema.js';

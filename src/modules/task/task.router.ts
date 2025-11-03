@@ -1,9 +1,9 @@
 import { Router } from 'express';
+import { ByPositionFilteringSchema } from './schemas/by-position-filtering-query.schema.js';
 import { CreateTaskSchema } from './schemas/create-task.schema.js';
 import { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
 import { TaskQuerySchema } from './schemas/task-query.schema.js';
 import { UpdateTaskSchema } from './schemas/update-task.schema.js';
-import { ByPositionFilteringSchema } from '@schemas/by-position-filtering-query.schema.js';
 import { ParamsIdSchema } from '@schemas/params-id.schema.js';
 import { TaskController } from './task.controller.js';
 import { validateBodyMiddleware } from '@validation-middlewares/validate-body.middleware.js';

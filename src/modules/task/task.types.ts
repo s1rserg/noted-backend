@@ -1,11 +1,11 @@
 import type { DataSource } from 'typeorm';
 import type { infer as ZodInfer } from 'zod';
 import type { TaskStatus } from './enums/task-status.enum.js';
+import type { ByPositionFilteringSchema } from './schemas/by-position-filtering-query.schema.js';
 import type { CreateTaskSchema } from './schemas/create-task.schema.js';
 import type { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
 import type { TaskQuerySchema } from './schemas/task-query.schema.js';
 import type { UpdateTaskSchema } from './schemas/update-task.schema.js';
-import type { ByPositionFilteringSchema } from '@schemas/by-position-filtering-query.schema.js';
 
 // ! DTO-s
 export type CreateTaskDto = ZodInfer<typeof CreateTaskSchema>;
