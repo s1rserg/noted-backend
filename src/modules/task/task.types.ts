@@ -5,6 +5,7 @@ import type { CreateTaskSchema } from './schemas/create-task.schema.js';
 import type { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
 import type { TaskQuerySchema } from './schemas/task-query.schema.js';
 import type { UpdateTaskSchema } from './schemas/update-task.schema.js';
+import type { ByPositionFilteringSchema } from '@schemas/by-position-filtering-query.schema.js';
 
 // ! DTO-s
 export type CreateTaskDto = ZodInfer<typeof CreateTaskSchema>;
@@ -12,6 +13,8 @@ export type CreateTaskDto = ZodInfer<typeof CreateTaskSchema>;
 export type UpdateTaskDto = ZodInfer<typeof UpdateTaskSchema>;
 
 export type TaskFindAllQuery = ZodInfer<typeof TaskQuerySchema>;
+
+export type TaskFindAllByPositionQuery = ZodInfer<typeof ByPositionFilteringSchema>;
 
 export type ReorderTaskDto = ZodInfer<typeof ReorderTaskSchema>;
 

@@ -1,6 +1,11 @@
 import { type DataSource, type DeleteResult, MoreThanOrEqual, type Repository } from 'typeorm';
-import type { Nullable } from '@types';
-import type { CreateTaskDto, TaskFindAllQuery, UpdateTaskDto } from '../task.types.js';
+import { type Nullable, SortOrder } from '@types';
+import type {
+  CreateTaskDto,
+  TaskFindAllByPositionQuery,
+  TaskFindAllQuery,
+  UpdateTaskDto,
+} from '../task.types.js';
 import type { TaskStatus } from '../enums/task-status.enum.js';
 import { applyFilters, applyPagination, applySearch, applySorting } from '@utils/typeorm-query';
 import { TaskEntity } from '../entities/task.entity.js';
@@ -31,6 +36,24 @@ export class TaskRepository {
     });
 
     applyPagination({ page, perPage, queryBuilder });
+
+    return queryBuilder.andWhere({ authorId }).getMany();
+  }
+
+  async findAllByPosition(
+    authorId: number,
+    query: TaskFindAllByPositionQuery,
+  ): Promise<TaskEntity[]> {
+    const queryBuilder = this.taskRepository.createQueryBuilder('tasks');
+    const { status } = query;
+
+    applyFilters({ queryBuilder, filters: { status } });
+
+    applySorting({
+      queryBuilder,
+      sortBy: 'position',
+      order: SortOrder.ASC,
+    });
 
     return queryBuilder.andWhere({ authorId }).getMany();
   }

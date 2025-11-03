@@ -3,6 +3,7 @@ import { CreateTaskSchema } from './schemas/create-task.schema.js';
 import { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
 import { TaskQuerySchema } from './schemas/task-query.schema.js';
 import { UpdateTaskSchema } from './schemas/update-task.schema.js';
+import { ByPositionFilteringSchema } from '@schemas/by-position-filtering-query.schema.js';
 import { ParamsIdSchema } from '@schemas/params-id.schema.js';
 import { TaskController } from './task.controller.js';
 import { validateBodyMiddleware } from '@validation-middlewares/validate-body.middleware.js';
@@ -14,6 +15,12 @@ export const createTaskRouter = (taskController: TaskController) => {
   const taskRouter = Router();
 
   taskRouter.get('/', [validateQueryMiddleware(TaskQuerySchema)], taskController.findAll);
+
+  taskRouter.get(
+    '/by-position',
+    [validateQueryMiddleware(ByPositionFilteringSchema)],
+    taskController.findAll,
+  );
 
   taskRouter.get('/:id', [validateParamsMiddleware(ParamsIdSchema)], taskController.findOne);
 

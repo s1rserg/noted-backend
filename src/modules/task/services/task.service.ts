@@ -3,6 +3,7 @@ import type { MessageResponse } from '@types';
 import type {
   CreateTaskDto,
   ReorderTaskDto,
+  TaskFindAllByPositionQuery,
   TaskFindAllQuery,
   TaskResponse,
   UpdateTaskDto,
@@ -15,6 +16,13 @@ export class TaskService {
 
   async findAll(user: ActiveUser, query: TaskFindAllQuery): Promise<TaskResponse[]> {
     return this.taskRepository.findAll(user.id, query);
+  }
+
+  async findAllByPosition(
+    user: ActiveUser,
+    query: TaskFindAllByPositionQuery,
+  ): Promise<TaskResponse[]> {
+    return this.taskRepository.findAllByPosition(user.id, query);
   }
 
   async findOne(id: number, user: ActiveUser): Promise<TaskResponse> {
