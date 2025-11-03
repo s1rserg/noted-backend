@@ -1,8 +1,10 @@
-import type { DataSource, DeleteResult, Repository } from 'typeorm';
+import { type DataSource, type DeleteResult, MoreThanOrEqual, type Repository } from 'typeorm';
 import type { Nullable } from '@types';
 import type { CreateTaskDto, TaskFindAllQuery, UpdateTaskDto } from '../task.types.js';
+import type { TaskStatus } from '../enums/task-status.enum.js';
 import { applyFilters, applyPagination, applySearch, applySorting } from '@utils/typeorm-query';
 import { TaskEntity } from '../entities/task.entity.js';
+import { TaskNotFoundException } from '../exceptions/task-not-found.exception.js';
 
 import { getSortExpressions } from '../utils/getSortExpressions.js';
 
@@ -38,8 +40,20 @@ export class TaskRepository {
   }
 
   async create(createTaskDto: CreateTaskDto, authorId: number): Promise<TaskEntity> {
-    const task = this.taskRepository.create({ ...createTaskDto, authorId });
-    return this.taskRepository.save(task);
+    return this.dataSource.transaction(async (manager) => {
+      const repo = manager.getRepository(TaskEntity);
+      const status = createTaskDto.status;
+
+      const position = await this.getNextPosition(status, authorId, repo);
+
+      const task = repo.create({
+        ...createTaskDto,
+        authorId,
+        position,
+      });
+
+      return repo.save(task);
+    });
   }
 
   async update(
@@ -52,6 +66,52 @@ export class TaskRepository {
 
     const mergedTask = this.taskRepository.merge(task, updateTaskDto);
     return this.taskRepository.save(mergedTask);
+  }
+
+  async reorder(id: number, nextTaskId: Nullable<number>, authorId: number, status: TaskStatus) {
+    return this.dataSource.transaction(async (manager) => {
+      const taskRepo = manager.getRepository(TaskEntity);
+
+      const movingTask = await taskRepo.findOneBy({ id, authorId });
+      if (!movingTask) throw new TaskNotFoundException();
+
+      if (movingTask.status !== status) {
+        movingTask.status = status;
+      }
+
+      const nextTask = nextTaskId ? await taskRepo.findOneBy({ id: nextTaskId, authorId }) : null;
+
+      if (!nextTask) {
+        movingTask.position = await this.getNextPosition(status, authorId, taskRepo);
+      } else {
+        await taskRepo
+          .createQueryBuilder()
+          .update(TaskEntity)
+          .set({ position: () => '"position" + 1' })
+          .where({ status: movingTask.status, authorId })
+          .andWhere({ position: MoreThanOrEqual(nextTask.position) })
+          .execute();
+
+        movingTask.position = nextTask.position;
+      }
+
+      await taskRepo.save(movingTask);
+      return movingTask;
+    });
+  }
+
+  private async getNextPosition(
+    status: TaskStatus,
+    authorId: number,
+    repo: Repository<TaskEntity>,
+  ): Promise<number> {
+    const { max } = (await repo
+      .createQueryBuilder()
+      .select('MAX(position)', 'max')
+      .where({ status, authorId })
+      .getRawOne<{ max: number }>()) ?? { max: 0 };
+
+    return (max ?? 0) + 1;
   }
 
   async delete(id: number, authorId?: number): Promise<DeleteResult> {

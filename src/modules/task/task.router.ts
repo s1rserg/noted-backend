@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { CreateTaskSchema } from './schemas/create-task.schema.js';
+import { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
 import { TaskQuerySchema } from './schemas/task-query.schema.js';
 import { UpdateTaskSchema } from './schemas/update-task.schema.js';
 import { ParamsIdSchema } from '@schemas/params-id.schema.js';
@@ -22,6 +23,12 @@ export const createTaskRouter = (taskController: TaskController) => {
     '/:id',
     [validateRequestMiddleware({ body: UpdateTaskSchema, params: ParamsIdSchema })],
     taskController.update,
+  );
+
+  taskRouter.patch(
+    '/:id/reorder',
+    [validateRequestMiddleware({ body: ReorderTaskSchema, params: ParamsIdSchema })],
+    taskController.reorder,
   );
 
   taskRouter.delete('/:id', [validateParamsMiddleware(ParamsIdSchema)], taskController.delete);

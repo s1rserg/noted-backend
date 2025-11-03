@@ -2,6 +2,7 @@ import type { ActiveUser } from '@modules/auth';
 import type { MessageResponse } from '@types';
 import type {
   CreateTaskDto,
+  ReorderTaskDto,
   TaskFindAllQuery,
   TaskResponse,
   UpdateTaskDto,
@@ -32,6 +33,18 @@ export class TaskService {
     if (!updatedTask) throw new TaskNotFoundException();
 
     return updatedTask;
+  }
+
+  async reorder(
+    id: number,
+    reorderTaskDto: ReorderTaskDto,
+    user: ActiveUser,
+  ): Promise<TaskResponse> {
+    const { nextTaskId, status } = reorderTaskDto;
+    const task = await this.taskRepository.reorder(id, nextTaskId, user.id, status);
+    if (!task) throw new TaskNotFoundException();
+
+    return task;
   }
 
   async delete(id: number, user: ActiveUser): Promise<MessageResponse> {
