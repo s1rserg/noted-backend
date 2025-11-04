@@ -27,7 +27,7 @@ export const TaskCursorQuerySchema = z.strictObject({
           });
           return z.NEVER;
         }
-        return parsed.success ? parsed.data : undefined;
+        return parsed.data;
       } catch {
         ctx.addIssue({
           code: 'custom',
