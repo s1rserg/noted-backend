@@ -6,7 +6,7 @@ import { createTaskRouter } from './task.router.js';
 
 export const runTaskModuleComposer = ({ dataSource }: TaskModuleComposerArgs) => {
   const taskRepository = new TaskRepository(dataSource);
-  const taskService = new TaskService(taskRepository);
+  const taskService = new TaskService(taskRepository, dataSource);
   const taskController = new TaskController(taskService);
 
   const taskRouter = createTaskRouter(taskController);

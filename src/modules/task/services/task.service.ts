@@ -1,7 +1,10 @@
+import type { DataSource } from 'typeorm';
 import type { ActiveUser } from '@modules/auth';
 import type { MessageResponse } from '@types';
 import type {
   CreateTaskDto,
+  ReorderTaskDto,
+  TaskFindAllByPositionQuery,
   TaskFindAllQuery,
   TaskResponse,
   UpdateTaskDto,
@@ -10,10 +13,20 @@ import type { TaskRepository } from '../repositories/task.repository.js';
 import { TaskNotFoundException } from '../exceptions/task-not-found.exception.js';
 
 export class TaskService {
-  constructor(private readonly taskRepository: TaskRepository) {}
+  constructor(
+    private readonly taskRepository: TaskRepository,
+    private readonly dataSource: DataSource,
+  ) {}
 
   async findAll(user: ActiveUser, query: TaskFindAllQuery): Promise<TaskResponse[]> {
     return this.taskRepository.findAll(user.id, query);
+  }
+
+  async findAllByPosition(
+    user: ActiveUser,
+    query: TaskFindAllByPositionQuery,
+  ): Promise<TaskResponse[]> {
+    return this.taskRepository.findAllByPosition(user.id, query);
   }
 
   async findOne(id: number, user: ActiveUser): Promise<TaskResponse> {
@@ -32,6 +45,37 @@ export class TaskService {
     if (!updatedTask) throw new TaskNotFoundException();
 
     return updatedTask;
+  }
+
+  async reorder(
+    id: number,
+    reorderTaskDto: ReorderTaskDto,
+    user: ActiveUser,
+  ): Promise<TaskResponse> {
+    const { nextTaskId, status } = reorderTaskDto;
+    const authorId = user.id;
+
+    return this.dataSource.transaction(async (manager) => {
+      const movingTask = await this.taskRepository.findOne(id, authorId, manager);
+      if (!movingTask) throw new TaskNotFoundException();
+
+      if (movingTask.status !== status) {
+        movingTask.status = status;
+      }
+
+      const nextTask = nextTaskId
+        ? await this.taskRepository.findOne(nextTaskId, authorId, manager)
+        : null;
+
+      if (!nextTask) {
+        movingTask.position = await this.taskRepository.getNextPosition(status, authorId, manager);
+      } else {
+        await this.taskRepository.incrementPositions(status, authorId, nextTask.position, manager);
+        movingTask.position = nextTask.position;
+      }
+
+      return this.taskRepository.save(movingTask, manager);
+    });
   }
 
   async delete(id: number, user: ActiveUser): Promise<MessageResponse> {

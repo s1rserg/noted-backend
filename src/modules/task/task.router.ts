@@ -1,5 +1,7 @@
 import { Router } from 'express';
+import { ByPositionFilteringSchema } from './schemas/by-position-filtering-query.schema.js';
 import { CreateTaskSchema } from './schemas/create-task.schema.js';
+import { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
 import { TaskQuerySchema } from './schemas/task-query.schema.js';
 import { UpdateTaskSchema } from './schemas/update-task.schema.js';
 import { ParamsIdSchema } from '@schemas/params-id.schema.js';
@@ -14,6 +16,12 @@ export const createTaskRouter = (taskController: TaskController) => {
 
   taskRouter.get('/', [validateQueryMiddleware(TaskQuerySchema)], taskController.findAll);
 
+  taskRouter.get(
+    '/by-position',
+    [validateQueryMiddleware(ByPositionFilteringSchema)],
+    taskController.findAllByPosition,
+  );
+
   taskRouter.get('/:id', [validateParamsMiddleware(ParamsIdSchema)], taskController.findOne);
 
   taskRouter.post('/', [validateBodyMiddleware(CreateTaskSchema)], taskController.create);
@@ -22,6 +30,12 @@ export const createTaskRouter = (taskController: TaskController) => {
     '/:id',
     [validateRequestMiddleware({ body: UpdateTaskSchema, params: ParamsIdSchema })],
     taskController.update,
+  );
+
+  taskRouter.patch(
+    '/:id/reorder',
+    [validateRequestMiddleware({ body: ReorderTaskSchema, params: ParamsIdSchema })],
+    taskController.reorder,
   );
 
   taskRouter.delete('/:id', [validateParamsMiddleware(ParamsIdSchema)], taskController.delete);

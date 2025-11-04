@@ -2,16 +2,20 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '@modules/user';
+import type { Nullable } from '@types';
 import { TaskPriority } from '../enums/task-priority.enum.js';
 import { TaskStatus } from '../enums/task-status.enum.js';
 
-@Entity('tasks', { orderBy: { createdAt: 'DESC' } })
+@Entity('tasks')
+// TODO: make position unique
+@Index('idx_tasks_status_position', ['status', 'position'])
 export class TaskEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -23,7 +27,7 @@ export class TaskEntity {
   description: string;
 
   @Column({ type: 'date', nullable: true })
-  deadline: string | null;
+  deadline: Nullable<string>;
 
   @Column({
     type: 'enum',
@@ -41,6 +45,9 @@ export class TaskEntity {
 
   @Column({ type: 'simple-array', default: '' })
   tags: string[] = [];
+
+  @Column({ type: 'int' })
+  position: number;
 
   @ManyToOne(() => UserEntity, (user) => user.id, {
     onDelete: 'CASCADE',
