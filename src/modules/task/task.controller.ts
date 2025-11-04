@@ -3,7 +3,7 @@ import type { TypedRequest } from '@types';
 import type {
   CreateTaskDto,
   ReorderTaskDto,
-  TaskFindAllByPositionQuery,
+  TaskFindAllCursorQuery,
   TaskFindAllQuery,
   UpdateTaskDto,
 } from './task.types.js';
@@ -20,13 +20,10 @@ export class TaskController {
     res.status(200).json(tasks);
   };
 
-  findAllByPosition = async (
-    req: TypedRequest<{ query: TaskFindAllByPositionQuery }>,
-    res: Response,
-  ) => {
+  findAllByCursor = async (req: TypedRequest<{ query: TaskFindAllCursorQuery }>, res: Response) => {
     const user = req.user!;
     const query = req.validated.query;
-    const tasks = await this.taskService.findAllByPosition(user, query);
+    const tasks = await this.taskService.findAllByCursor(user, query);
 
     res.status(200).json(tasks);
   };

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { ByPositionFilteringSchema } from './schemas/by-position-filtering-query.schema.js';
 import { CreateTaskSchema } from './schemas/create-task.schema.js';
 import { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
+import { TaskCursorQuerySchema } from './schemas/task-cursor-query.schema.js';
 import { TaskQuerySchema } from './schemas/task-query.schema.js';
 import { UpdateTaskSchema } from './schemas/update-task.schema.js';
 import { ParamsIdSchema } from '@schemas/params-id.schema.js';
@@ -17,9 +17,9 @@ export const createTaskRouter = (taskController: TaskController) => {
   taskRouter.get('/', [validateQueryMiddleware(TaskQuerySchema)], taskController.findAll);
 
   taskRouter.get(
-    '/by-position',
-    [validateQueryMiddleware(ByPositionFilteringSchema)],
-    taskController.findAllByPosition,
+    '/cursor',
+    [validateQueryMiddleware(TaskCursorQuerySchema)],
+    taskController.findAllByCursor,
   );
 
   taskRouter.get('/:id', [validateParamsMiddleware(ParamsIdSchema)], taskController.findOne);

@@ -5,13 +5,8 @@ import {
   MoreThanOrEqual,
   type Repository,
 } from 'typeorm';
-import { type Nullable, SortOrder } from '@types';
-import type {
-  CreateTaskDto,
-  TaskFindAllByPositionQuery,
-  TaskFindAllQuery,
-  UpdateTaskDto,
-} from '../task.types.js';
+import { type Nullable } from '@types';
+import type { CreateTaskDto, TaskFindAllQuery, UpdateTaskDto } from '../task.types.js';
 import type { TaskStatus } from '../enums/task-status.enum.js';
 import { applyFilters, applyPagination, applySearch, applySorting } from '@utils/typeorm-query';
 import { TaskEntity } from '../entities/task.entity.js';
@@ -45,22 +40,32 @@ export class TaskRepository {
     return queryBuilder.andWhere({ authorId }).getMany();
   }
 
-  async findAllByPosition(
+  async findAllWithCursor(
     authorId: number,
-    query: TaskFindAllByPositionQuery,
+    status: TaskStatus,
+    take: number,
+    cursorId?: number,
   ): Promise<TaskEntity[]> {
     const queryBuilder = this.taskRepository.createQueryBuilder('tasks');
-    const { status } = query;
+    queryBuilder.where({ authorId, status });
 
-    applyFilters({ queryBuilder, filters: { status } });
+    if (cursorId !== undefined) {
+      queryBuilder.andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('cursor_task.position')
+          .from(TaskEntity, 'cursor_task')
+          .where('cursor_task.id = :cursorId', { cursorId })
+          .andWhere('cursor_task.authorId = :authorId', { authorId })
+          .getQuery();
 
-    applySorting({
-      queryBuilder,
-      sortBy: 'position',
-      order: SortOrder.ASC,
-    });
+        return 'tasks.position > ' + subQuery;
+      });
+    }
 
-    return queryBuilder.andWhere({ authorId }).getMany();
+    queryBuilder.orderBy('tasks.position', 'ASC').take(take);
+
+    return queryBuilder.getMany();
   }
 
   async findOne(

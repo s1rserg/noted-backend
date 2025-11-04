@@ -4,7 +4,8 @@ import type { MessageResponse } from '@types';
 import type {
   CreateTaskDto,
   ReorderTaskDto,
-  TaskFindAllByPositionQuery,
+  TaskCursorResponse,
+  TaskFindAllCursorQuery,
   TaskFindAllQuery,
   TaskResponse,
   UpdateTaskDto,
@@ -22,11 +23,23 @@ export class TaskService {
     return this.taskRepository.findAll(user.id, query);
   }
 
-  async findAllByPosition(
+  async findAllByCursor(
     user: ActiveUser,
-    query: TaskFindAllByPositionQuery,
-  ): Promise<TaskResponse[]> {
-    return this.taskRepository.findAllByPosition(user.id, query);
+    query: TaskFindAllCursorQuery,
+  ): Promise<TaskCursorResponse> {
+    const { status, cursor, limit } = query;
+    const authorId = user.id;
+    const take = limit + 1;
+
+    const tasks = await this.taskRepository.findAllWithCursor(authorId, status, take, cursor?.id);
+
+    let hasMore = false;
+    if (tasks.length > limit) {
+      tasks.pop();
+      hasMore = true;
+    }
+
+    return { data: tasks, hasMore };
   }
 
   async findOne(id: number, user: ActiveUser): Promise<TaskResponse> {

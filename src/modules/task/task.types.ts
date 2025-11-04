@@ -1,9 +1,9 @@
 import type { DataSource } from 'typeorm';
 import type { infer as ZodInfer } from 'zod';
 import type { TaskStatus } from './enums/task-status.enum.js';
-import type { ByPositionFilteringSchema } from './schemas/by-position-filtering-query.schema.js';
 import type { CreateTaskSchema } from './schemas/create-task.schema.js';
 import type { ReorderTaskSchema } from './schemas/reorder-task.schema.js';
+import type { TaskCursorQuerySchema } from './schemas/task-cursor-query.schema.js';
 import type { TaskQuerySchema } from './schemas/task-query.schema.js';
 import type { UpdateTaskSchema } from './schemas/update-task.schema.js';
 
@@ -14,9 +14,13 @@ export type UpdateTaskDto = ZodInfer<typeof UpdateTaskSchema>;
 
 export type TaskFindAllQuery = ZodInfer<typeof TaskQuerySchema>;
 
-export type TaskFindAllByPositionQuery = ZodInfer<typeof ByPositionFilteringSchema>;
+export type TaskFindAllCursorQuery = ZodInfer<typeof TaskCursorQuerySchema>;
 
 export type ReorderTaskDto = ZodInfer<typeof ReorderTaskSchema>;
+
+export interface PositionCursor {
+  id: number;
+}
 
 // ! Responses
 export interface TaskResponse {
@@ -29,6 +33,11 @@ export interface TaskResponse {
   authorId: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface TaskCursorResponse {
+  data: TaskResponse[];
+  hasMore: boolean;
 }
 
 // ! Composer
